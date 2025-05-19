@@ -1,84 +1,79 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --background: 40 30% 96%; /* Warm off-white */
+    --foreground: 30 25% 18%; /* Dark brown text */
 
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 30 25% 18%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover-foreground: 30 25% 18%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    --primary: 20 70% 25%; /* Maroon */
+    --primary-foreground: 40 30% 96%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 30 50% 85%; /* Light beige */
+    --secondary-foreground: 20 70% 25%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted: 30 20% 90%;
+    --muted-foreground: 30 10% 40%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --accent: 38 80% 50%; /* Gold */
+    --accent-foreground: 0 0% 98%;
 
     --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive-foreground: 40 30% 96%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --border: 30 15% 85%;
+    --input: 30 15% 85%;
+    --ring: 20 70% 25%;
 
     --radius: 0.5rem;
 
     --sidebar-background: 0 0% 98%;
-
     --sidebar-foreground: 240 5.3% 26.1%;
-
     --sidebar-primary: 240 5.9% 10%;
-
     --sidebar-primary-foreground: 0 0% 98%;
-
     --sidebar-accent: 240 4.8% 95.9%;
-
     --sidebar-accent-foreground: 240 5.9% 10%;
-
     --sidebar-border: 220 13% 91%;
-
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
+    --background: 30 15% 12%;
+    --foreground: 40 15% 90%;
 
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
+    --card: 30 15% 12%;
+    --card-foreground: 40 15% 90%;
 
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 30 15% 12%;
+    --popover-foreground: 40 15% 90%;
 
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
+    --primary: 20 70% 40%;
+    --primary-foreground: 40 15% 90%;
 
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
+    --secondary: 30 20% 25%;
+    --secondary-foreground: 40 15% 90%;
 
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
+    --muted: 30 20% 25%;
+    --muted-foreground: 30 10% 70%;
 
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
+    --accent: 38 80% 40%;
+    --accent-foreground: 0 0% 98%;
 
     --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive-foreground: 40 15% 90%;
 
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
+    --border: 30 20% 30%;
+    --input: 30 20% 30%;
+    --ring: 38 80% 40%;
+    
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
     --sidebar-primary: 224.3 76.3% 48%;
@@ -97,5 +92,53 @@
 
   body {
     @apply bg-background text-foreground;
+  }
+  
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    @apply bg-secondary/50;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    @apply bg-primary/70 rounded-full;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-primary;
+  }
+}
+
+@layer components {
+  .product-card {
+    @apply border rounded-md overflow-hidden transition-all duration-300 hover:shadow-md hover:-translate-y-1;
+  }
+  
+  .btn-filter {
+    @apply px-3 py-1.5 text-sm rounded-full border border-muted-foreground/20 hover:bg-secondary transition-colors;
+  }
+  
+  .btn-filter-active {
+    @apply bg-primary text-primary-foreground hover:bg-primary/90;
+  }
+  
+  .product-image-wrapper {
+    @apply relative overflow-hidden aspect-square bg-secondary/30;
+  }
+  
+  .product-image {
+    @apply object-cover w-full h-full transition-transform duration-500;
+  }
+  
+  .product-card:hover .product-image {
+    @apply scale-105;
+  }
+  
+  .product-badge {
+    @apply absolute top-2 left-2 bg-accent text-accent-foreground text-xs px-2 py-0.5 rounded-sm font-medium;
   }
 }
