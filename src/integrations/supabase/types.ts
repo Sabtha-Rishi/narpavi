@@ -9,7 +9,78 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      products: {
+        Row: {
+          artisan: string | null
+          category: string
+          created_at: string | null
+          description: string
+          dimensions: string | null
+          discounted_price: number | null
+          id: number
+          image_urls: string[]
+          is_bestseller: boolean | null
+          is_featured: boolean | null
+          is_new_arrival: boolean | null
+          material: string
+          name: string
+          occasions: string[] | null
+          price: number
+          region_of_origin: string | null
+          related_gods: string[] | null
+          stock_quantity: number
+          subcategory: string | null
+          tags: string[] | null
+          weight: string | null
+        }
+        Insert: {
+          artisan?: string | null
+          category: string
+          created_at?: string | null
+          description: string
+          dimensions?: string | null
+          discounted_price?: number | null
+          id?: number
+          image_urls?: string[]
+          is_bestseller?: boolean | null
+          is_featured?: boolean | null
+          is_new_arrival?: boolean | null
+          material: string
+          name: string
+          occasions?: string[] | null
+          price: number
+          region_of_origin?: string | null
+          related_gods?: string[] | null
+          stock_quantity?: number
+          subcategory?: string | null
+          tags?: string[] | null
+          weight?: string | null
+        }
+        Update: {
+          artisan?: string | null
+          category?: string
+          created_at?: string | null
+          description?: string
+          dimensions?: string | null
+          discounted_price?: number | null
+          id?: number
+          image_urls?: string[]
+          is_bestseller?: boolean | null
+          is_featured?: boolean | null
+          is_new_arrival?: boolean | null
+          material?: string
+          name?: string
+          occasions?: string[] | null
+          price?: number
+          region_of_origin?: string | null
+          related_gods?: string[] | null
+          stock_quantity?: number
+          subcategory?: string | null
+          tags?: string[] | null
+          weight?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
