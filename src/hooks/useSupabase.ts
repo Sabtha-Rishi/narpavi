@@ -1,14 +1,8 @@
 
 import { useState, useEffect } from 'react';
-import { createClient } from '@supabase/supabase-js';
+import { supabase } from '@/integrations/supabase/client';
 import type { Product, FilterOptions } from '../types';
 import { useToast } from "@/components/ui/use-toast";
-
-// Initialize the Supabase client
-// In production, these would be environment variables
-const supabaseUrl = 'https://your-project-url.supabase.co';
-const supabaseKey = 'your-anon-key';
-const supabase = createClient(supabaseUrl, supabaseKey);
 
 export const useProducts = (
   filters: FilterOptions = {},
@@ -84,12 +78,16 @@ export const useProducts = (
         const from = (page - 1) * pageSize;
         const to = from + pageSize - 1;
         
+        console.log("Executing Supabase query:", { filters, page, pageSize, from, to });
+        
         const { data, count, error } = await query
           .range(from, to);
           
         if (error) {
           throw error;
         }
+        
+        console.log("Query results:", { data, count });
         
         setProducts(data as Product[]);
         setTotalCount(count || 0);
@@ -163,45 +161,70 @@ export const useFilterOptions = () => {
   const [categories, setCategories] = useState<string[]>([]);
   const [priceRange, setPriceRange] = useState<{ min: number; max: number }>({ min: 0, max: 0 });
   const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
 
   useEffect(() => {
     const fetchFilterOptions = async () => {
       setLoading(true);
+      setError(null);
 
       try {
+        console.log("Fetching filter options...");
+        
         // Fetch unique gods
-        const { data: godsData } = await supabase
+        const { data: godsData, error: godsError } = await supabase
           .from('products')
           .select('related_gods');
         
+        if (godsError) throw godsError;
+        
         // Fetch unique occasions
-        const { data: occasionsData } = await supabase
+        const { data: occasionsData, error: occasionsError } = await supabase
           .from('products')
           .select('occasions');
         
+        if (occasionsError) throw occasionsError;
+        
         // Fetch unique materials
-        const { data: materialsData } = await supabase
+        const { data: materialsData, error: materialsError } = await supabase
           .from('products')
           .select('material');
         
+        if (materialsError) throw materialsError;
+        
         // Fetch unique categories
-        const { data: categoriesData } = await supabase
+        const { data: categoriesData, error: categoriesError } = await supabase
           .from('products')
           .select('category');
         
+        if (categoriesError) throw categoriesError;
+        
         // Fetch min and max price
-        const { data: minPriceData } = await supabase
+        const { data: minPriceData, error: minPriceError } = await supabase
           .from('products')
           .select('price')
           .order('price', { ascending: true })
           .limit(1);
         
-        const { data: maxPriceData } = await supabase
+        if (minPriceError) throw minPriceError;
+        
+        const { data: maxPriceData, error: maxPriceError } = await supabase
           .from('products')
           .select('price')
           .order('price', { ascending: false })
           .limit(1);
+        
+        if (maxPriceError) throw maxPriceError;
+
+        console.log("Filter data retrieved:", { 
+          godsData, 
+          occasionsData, 
+          materialsData, 
+          categoriesData,
+          minPriceData,
+          maxPriceData
+        });
 
         // Process gods (flatten the array of arrays and get unique values)
         const uniqueGods = Array.from(
@@ -220,14 +243,14 @@ export const useFilterOptions = () => {
         // Process materials (get unique values)
         const uniqueMaterials = Array.from(
           new Set(
-            materialsData?.map(item => item.material) || []
+            materialsData?.map(item => item.material).filter(Boolean) || []
           )
         );
 
         // Process categories (get unique values)
         const uniqueCategories = Array.from(
           new Set(
-            categoriesData?.map(item => item.category) || []
+            categoriesData?.map(item => item.category).filter(Boolean) || []
           )
         );
 
@@ -242,6 +265,7 @@ export const useFilterOptions = () => {
         setPriceRange({ min: minPrice, max: maxPrice });
       } catch (err: any) {
         console.error('Error fetching filter options:', err);
+        setError(err.message);
         toast({
           title: "Error",
           description: "Failed to load filter options. Please try again.",
@@ -263,6 +287,7 @@ export const useFilterOptions = () => {
       categories,
       priceRange
     },
-    loading
+    loading,
+    error
   };
 };
