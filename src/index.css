@@ -5,65 +5,65 @@
  
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --background: 39 38% 98%;
+    --foreground: 20 40% 20%;
 
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 20 40% 20%;
  
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover-foreground: 20 40% 20%;
  
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    --primary: 22 70% 25%;
+    --primary-foreground: 60 30% 96%;
  
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 30 30% 92%;
+    --secondary-foreground: 24 40% 25%;
  
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted: 30 20% 92%;
+    --muted-foreground: 25 20% 45%;
  
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --accent: 35 65% 62%;
+    --accent-foreground: 24 40% 25%;
  
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --border: 20 30% 85%;
+    --input: 20 30% 85%;
+    --ring: 24 40% 25%;
  
-    --radius: 0.5rem;
+    --radius: 0.65rem;
   }
  
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
+    --background: 20 40% 8%;
+    --foreground: 30 20% 90%;
  
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
+    --card: 20 40% 8%;
+    --card-foreground: 30 20% 90%;
  
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 20 40% 8%;
+    --popover-foreground: 30 20% 90%;
  
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
+    --primary: 40 60% 50%;
+    --primary-foreground: 20 40% 8%;
  
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
+    --secondary: 24 30% 18%;
+    --secondary-foreground: 30 20% 90%;
  
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
+    --muted: 24 30% 18%;
+    --muted-foreground: 30 20% 60%;
  
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
+    --accent: 35 65% 40%;
+    --accent-foreground: 30 20% 90%;
  
     --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive-foreground: 0 0% 98%;
  
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
+    --border: 24 30% 25%;
+    --input: 24 30% 25%;
+    --ring: 35 65% 50%;
   }
 }
  
@@ -73,34 +73,49 @@
   }
   body {
     @apply bg-background text-foreground;
+    font-feature-settings: "ss01", "ss02", "cv01", "cv02", "cv03";
   }
 }
 
+/* Animation classes */
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideIn {
+  from { transform: translateX(-10px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
 }
 
 .animate-fade-in {
   animation: fadeIn 0.3s ease-in-out;
 }
 
+.animate-slide-in {
+  animation: slideIn 0.2s ease-in-out;
+}
+
+.transition-all-smooth {
+  transition: all 0.3s ease-in-out;
+}
+
+/* Product Card Styling */
 .product-card {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
+  @apply bg-white rounded-lg shadow-sm border border-earthy-beige/50 overflow-hidden h-full transition-all duration-300;
+}
+
+.product-card:hover {
+  @apply shadow-md border-earthy-beige;
+  transform: translateY(-2px);
 }
 
 .product-image-wrapper {
-  position: relative;
-  overflow: hidden;
+  @apply relative overflow-hidden;
 }
 
 .product-image {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform 0.3s ease;
+  @apply w-full h-full object-cover transition-transform duration-300;
 }
 
 .product-card:hover .product-image {
@@ -108,15 +123,7 @@
 }
 
 .product-badge {
-  position: absolute;
-  top: 8px;
-  left: 8px;
-  padding: 4px 8px;
-  border-radius: 9999px;
-  font-size: 0.75rem;
-  font-weight: 500;
-  color: white;
-  z-index: 10;
+  @apply absolute top-2 left-2 px-2 py-1 rounded-full text-xs font-medium text-white z-10;
 }
 
 /* Prevent layout shifts during loading */
@@ -129,4 +136,30 @@
   .product-card {
     margin-bottom: 1rem;
   }
+}
+
+/* Custom scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-earthy-beige/20 rounded-full;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-earthy-brown/50 rounded-full hover:bg-earthy-brown transition-colors;
+}
+
+/* Enhanced focus styles */
+:focus-visible {
+  @apply outline-none ring-2 ring-earthy-ochre/70 ring-offset-2;
+}
+
+.glass-effect {
+  @apply backdrop-blur-sm bg-white/90;
+}
+
+.text-shadow {
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.15);
 }

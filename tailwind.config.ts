@@ -63,8 +63,8 @@ export default {
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
 				},
-				// Narpavi custom colors
-				narpavi: {
+				// Enhanced earthy color palette
+				earthy: {
 					brown: {
 						light: '#D2B48C', // Tan
 						DEFAULT: '#8B4513', // SaddleBrown
@@ -130,12 +130,34 @@ export default {
 						transform: 'translateY(10px)'
 					}
 				},
+				'scale-in': {
+					'0%': {
+						transform: 'scale(0.95)',
+						opacity: '0'
+					},
+					'100%': {
+						transform: 'scale(1)',
+						opacity: '1'
+					}
+				},
+				'slide-in': {
+					'0%': {
+						transform: 'translateX(-10px)',
+						opacity: '0'
+					},
+					'100%': {
+						transform: 'translateX(0)',
+						opacity: '1'
+					}
+				},
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
 				'accordion-up': 'accordion-up 0.2s ease-out',
 				'fade-in': 'fade-in 0.3s ease-out',
 				'fade-out': 'fade-out 0.3s ease-out',
+				'scale-in': 'scale-in 0.2s ease-out',
+				'slide-in': 'slide-in 0.3s ease-out',
 			}
 		}
 	},

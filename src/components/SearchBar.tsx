@@ -41,19 +41,19 @@ const SearchBar: React.FC<SearchBarProps> = ({ value, onChange }) => {
   };
 
   return (
-    <div className="relative w-full">
-      <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground h-4 w-4" />
+    <div className="relative w-full animate-fade-in">
+      <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-earthy-brown/70 h-4 w-4" />
       <Input
         ref={inputRef}
         type="search"
         placeholder="Search products, gods, materials..."
         value={localValue}
         onChange={handleChange}
-        className="pl-9 pr-8 transition-all duration-200 focus:shadow-lg"
+        className="pl-9 pr-8 transition-all duration-300 border-earthy-beige/70 focus:border-earthy-brown focus:ring-1 focus:ring-earthy-brown/30 rounded-md"
       />
       {localValue && (
         <button 
-          className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+          className="absolute right-3 top-1/2 -translate-y-1/2 text-earthy-brown/70 hover:text-earthy-maroon transition-colors"
           onClick={clearSearch}
           aria-label="Clear search"
         >

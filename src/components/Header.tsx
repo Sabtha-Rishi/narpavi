@@ -1,34 +1,41 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Search } from 'lucide-react';
-import { Input } from "@/components/ui/input";
+import SearchBar from './SearchBar';
+import { Settings } from 'lucide-react';
+import { Button } from "@/components/ui/button";
 
 interface HeaderProps {
   searchQuery: string;
   setSearchQuery: (query: string) => void;
+  openSettings: () => void;
 }
 
-const Header: React.FC<HeaderProps> = ({ searchQuery, setSearchQuery }) => {
+const Header: React.FC<HeaderProps> = ({ searchQuery, setSearchQuery, openSettings }) => {
   return (
-    <header className="sticky top-0 z-10 bg-background/95 backdrop-blur-sm border-b border-border py-4">
+    <header className="sticky top-0 z-10 bg-background/95 backdrop-blur-sm border-b border-earthy-beige/70 py-4 shadow-sm transition-all duration-300">
       <div className="container mx-auto px-4">
         <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-          <Link to="/" className="flex items-center">
-            <h1 className="text-2xl md:text-3xl font-bold text-primary">
-              Narpavi <span className="text-accent">Handicrafts</span>
+          <Link to="/" className="flex items-center group">
+            <h1 className="text-3xl md:text-4xl font-bold text-earthy-brown transition-all duration-300 group-hover:text-earthy-maroon">
+              Narpavi
+              <span className="sr-only">Handicrafts</span>
             </h1>
           </Link>
           
-          <div className="relative w-full md:w-1/3">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground h-4 w-4" />
-            <Input
-              type="search"
-              placeholder="Search for handicrafts..."
-              className="pl-10 w-full"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
+          <div className="flex items-center gap-4 w-full md:w-auto">
+            <div className="relative w-full md:w-80 lg:w-96">
+              <SearchBar value={searchQuery} onChange={setSearchQuery} />
+            </div>
+            <Button 
+              variant="ghost" 
+              size="icon"
+              onClick={openSettings}
+              className="flex-shrink-0 text-earthy-brown hover:text-earthy-maroon hover:bg-earthy-beige/20"
+            >
+              <Settings className="h-5 w-5" />
+              <span className="sr-only">Settings</span>
+            </Button>
           </div>
         </div>
       </div>

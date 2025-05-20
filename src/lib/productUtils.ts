@@ -67,3 +67,23 @@ export const groupProductsByCategory = (products: Product[]): Record<string, Pro
     return acc;
   }, {} as Record<string, Product[]>);
 };
+
+/**
+ * Get all searchable content from a product
+ */
+export const getSearchableContent = (product: Product): string => {
+  const searchableFields = [
+    product.name,
+    product.description,
+    product.category,
+    product.subcategory,
+    product.material,
+    product.region_of_origin,
+    product.artisan,
+    ...(product.related_gods || []),
+    ...(product.occasions || []),
+    ...(product.tags || [])
+  ];
+  
+  return searchableFields.filter(Boolean).join(' ').toLowerCase();
+};

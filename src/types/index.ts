@@ -37,3 +37,12 @@ export interface FilterOptions {
 }
 
 export type ViewMode = 'grid' | 'list';
+
+export interface DisplaySettings {
+  showStock: boolean;
+  showPrice: boolean;
+  showDimensions: boolean;
+  showMaterial: boolean;
+  showTags: boolean;
+  showVendor: boolean;
+}
