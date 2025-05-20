@@ -22,23 +22,39 @@ const ProductGrid: React.FC<ProductGridProps> = ({
     const skeletons = Array(12).fill(0);
     
     return skeletons.map((_, index) => (
-      <div key={index} className="product-card">
-        <div className={`product-image-wrapper ${viewMode === 'list' ? 'md:w-1/3' : ''}`}>
+      <div 
+        key={index} 
+        className={`product-card bg-white rounded-lg shadow-sm border border-border/40 overflow-hidden ${viewMode === 'list' ? 'flex flex-col md:flex-row' : ''}`}
+      >
+        <div className={`product-image-wrapper ${viewMode === 'list' ? 'md:w-1/3' : ''} h-[200px]`}>
           <Skeleton className="w-full h-full" />
         </div>
         <div className={`p-4 ${viewMode === 'list' ? 'md:w-2/3' : ''}`}>
-          <Skeleton className="h-5 w-3/4 mb-2" />
+          <Skeleton className="h-6 w-3/4 mb-2" />
           {viewMode === 'list' && (
             <>
               <Skeleton className="h-4 w-full mb-2" />
-              <Skeleton className="h-4 w-5/6" />
+              <Skeleton className="h-4 w-5/6 mb-4" />
             </>
           )}
-          <Skeleton className="h-4 w-1/4 mt-2" />
+          <Skeleton className="h-4 w-1/2 mt-1" />
+          <Skeleton className="h-5 w-1/4 mt-2" />
         </div>
       </div>
     ));
   };
+
+  // If no products and not loading, show empty state
+  if (!loading && products.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center py-16 text-center">
+        <h3 className="text-xl font-medium mb-2">No products found</h3>
+        <p className="text-muted-foreground">
+          Try adjusting your search or filter criteria to find what you're looking for.
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div 

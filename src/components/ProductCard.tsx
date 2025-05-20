@@ -2,6 +2,7 @@
 import React from 'react';
 import { Product } from '@/types';
 import { formatCurrency } from '@/lib/utils';
+import { calculateDiscountPercentage, getStockDisplay } from '@/lib/productUtils';
 
 interface ProductCardProps {
   product: Product;
@@ -10,23 +11,29 @@ interface ProductCardProps {
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({ product, viewMode, onClick }) => {
+  const discountPercentage = product.discounted_price 
+    ? calculateDiscountPercentage(product.price, product.discounted_price)
+    : 0;
+    
+  const stockInfo = getStockDisplay(product);
+
   return (
     <div 
-      className={`product-card cursor-pointer animate-fade-in ${
-        viewMode === 'list' ? 'flex flex-col md:flex-row' : ''
+      className={`product-card cursor-pointer animate-fade-in bg-white rounded-lg shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden border border-border/40 h-full ${
+        viewMode === 'list' ? 'flex flex-col md:flex-row' : 'flex flex-col'
       }`}
       onClick={onClick}
     >
       <div 
-        className={`product-image-wrapper ${
-          viewMode === 'list' ? 'md:w-1/3' : ''
+        className={`product-image-wrapper relative ${
+          viewMode === 'list' ? 'md:w-1/3 h-[200px] md:h-auto' : 'h-[200px] sm:h-[220px]'
         }`}
       >
         {product.image_urls && product.image_urls.length > 0 ? (
           <img 
             src={product.image_urls[0]} 
             alt={product.name}
-            className="product-image"
+            className="w-full h-full object-cover"
             loading="lazy"
           />
         ) : (
@@ -35,23 +42,33 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, viewMode, onClick })
           </div>
         )}
         
+        {discountPercentage > 0 && (
+          <span className="absolute top-2 right-2 bg-primary text-white text-sm px-2 py-1 rounded-full">
+            -{discountPercentage}%
+          </span>
+        )}
+        
         {product.is_bestseller && (
-          <span className="product-badge bg-accent">Best Seller</span>
+          <span className="absolute top-2 left-2 bg-accent text-accent-foreground text-xs px-2 py-1 rounded-full">
+            Best Seller
+          </span>
         )}
         
         {!product.is_bestseller && product.is_new_arrival && (
-          <span className="product-badge bg-primary">New Arrival</span>
+          <span className="absolute top-2 left-2 bg-primary text-white text-xs px-2 py-1 rounded-full">
+            New Arrival
+          </span>
         )}
       </div>
       
-      <div className={`p-4 flex flex-col ${viewMode === 'list' ? 'md:w-2/3' : ''}`}>
-        <h3 className="font-semibold text-foreground truncate">{product.name}</h3>
+      <div className={`p-4 flex flex-col ${viewMode === 'list' ? 'md:w-2/3' : ''} flex-grow`}>
+        <h3 className="font-semibold text-foreground text-lg line-clamp-2">{product.name}</h3>
         
         {viewMode === 'list' && (
-          <p className="text-muted-foreground text-sm line-clamp-2 mt-1">{product.description}</p>
+          <p className="text-muted-foreground text-sm line-clamp-2 mt-2">{product.description}</p>
         )}
         
-        <div className="flex items-center mt-1 text-sm text-muted-foreground">
+        <div className="flex items-center mt-2 text-sm text-muted-foreground">
           <span>{product.material}</span>
           {product.region_of_origin && (
             <>
@@ -61,17 +78,23 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, viewMode, onClick })
           )}
         </div>
         
-        <div className="mt-2 flex items-center">
-          {product.discounted_price ? (
-            <>
-              <span className="font-bold">{formatCurrency(product.discounted_price)}</span>
-              <span className="ml-2 text-muted-foreground text-sm line-through">
-                {formatCurrency(product.price)}
-              </span>
-            </>
-          ) : (
-            <span className="font-bold">{formatCurrency(product.price)}</span>
-          )}
+        <div className="mt-auto pt-3">
+          <div className="flex items-baseline">
+            {product.discounted_price ? (
+              <>
+                <span className="font-bold text-lg">{formatCurrency(product.discounted_price)}</span>
+                <span className="ml-2 text-muted-foreground text-sm line-through">
+                  {formatCurrency(product.price)}
+                </span>
+              </>
+            ) : (
+              <span className="font-bold text-lg">{formatCurrency(product.price)}</span>
+            )}
+          </div>
+          
+          <div className={`text-xs mt-1 ${stockInfo.color}`}>
+            {stockInfo.text}
+          </div>
         </div>
         
         {viewMode === 'list' && (

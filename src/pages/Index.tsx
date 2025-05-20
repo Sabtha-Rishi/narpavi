@@ -1,5 +1,5 @@
 
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useMemo } from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import ProductGrid from '@/components/ProductGrid';
@@ -7,7 +7,8 @@ import ProductFilters from '@/components/ProductFilters';
 import ProductDetail from '@/components/ProductDetail';
 import { Button } from '@/components/ui/button';
 import { FilterOptions, ViewMode } from '@/types';
-import { useProducts, useFilterOptions, useSingleProduct } from '@/hooks/useSupabase';
+import { useProducts, useSingleProduct } from '@/hooks/useSupabaseProducts';
+import { useFilterOptions } from '@/hooks/useSupabaseProducts';
 import { debounce } from '@/lib/utils';
 import { ChevronDown, List, LayoutGrid } from 'lucide-react';
 import { 
@@ -21,7 +22,7 @@ import { Separator } from '@/components/ui/separator';
 import { Pagination } from '@/components/ui/pagination';
 
 const Index: React.FC = () => {
-  // State
+  // State management
   const [viewMode, setViewMode] = useState<ViewMode>('grid');
   const [filters, setFilters] = useState<FilterOptions>({});
   const [searchQuery, setSearchQuery] = useState('');
@@ -31,9 +32,14 @@ const Index: React.FC = () => {
   
   const pageSize = 12;
   
-  // Load products
+  // Memoized filters object that includes search query
+  const activeFilters = useMemo(() => {
+    return { ...filters, search: searchQuery };
+  }, [filters, searchQuery]);
+  
+  // Load products with memoized filters
   const { products, totalCount, loading: productsLoading } = useProducts(
-    { ...filters, search: searchQuery }, 
+    activeFilters,
     currentPage, 
     pageSize
   );
@@ -53,45 +59,32 @@ const Index: React.FC = () => {
     setCurrentPage(1); // Reset to first page when filters change
   }, []);
   
-  const handleSortChange = (value: string) => {
+  const handleSortChange = useCallback((value: string) => {
     setFilters(prev => ({ 
       ...prev, 
       sort: value as FilterOptions['sort'] 
     }));
     setCurrentPage(1);
-  };
+  }, []);
   
-  const handlePageChange = (page: number) => {
+  const handlePageChange = useCallback((page: number) => {
     setCurrentPage(page);
     // Scroll to top
     window.scrollTo({
       top: 0,
       behavior: 'smooth'
     });
-  };
+  }, []);
   
-  const handleProductClick = (productId: number) => {
+  const handleProductClick = useCallback((productId: number) => {
     setSelectedProductId(productId);
     setIsDetailOpen(true);
-  };
+  }, []);
   
-  const handleProductDetailClose = () => {
+  const handleProductDetailClose = useCallback(() => {
     setIsDetailOpen(false);
-  };
+  }, []);
   
-  // Debounced search
-  const debouncedSearch = useCallback(
-    debounce((query: string) => {
-      setFilters(prev => ({ ...prev, search: query }));
-      setCurrentPage(1);
-    }, 500),
-    []
-  );
-  
-  useEffect(() => {
-    debouncedSearch(searchQuery);
-  }, [searchQuery, debouncedSearch]);
-
   return (
     <div className="min-h-screen flex flex-col">
       <Header searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
