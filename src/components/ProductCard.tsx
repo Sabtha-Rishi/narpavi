@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Product } from '@/types';
 import { formatCurrency } from '@/lib/utils';
@@ -32,21 +31,24 @@ const ProductCard: React.FC<ProductCardProps> = ({
 
   return (
     <div 
-      className={`product-card animate-fade-in cursor-pointer flex flex-col ${
-        viewMode === 'list' ? 'md:flex-row' : ''
-      }`}
+      className={`product-card animate-fade-in cursor-pointer flex flex-col ${viewMode === 'list' ? 'md:flex-row' : ''}`}
       onClick={onClick}
     >
       <div 
-        className={`product-image-wrapper ${
-          viewMode === 'list' ? 'md:w-1/3 h-[200px] md:h-auto' : 'h-[200px] sm:h-[220px]'
+        className={`product-image-wrapper relative ${
+          viewMode === 'list' 
+            ? 'md:w-1/3 h-[200px] md:h-auto'  // fixed height in list view for consistent layout
+            : 'w-full'                      // full width, no fixed height in grid view
         }`}
       >
         {product.image_urls && product.image_urls.length > 0 ? (
           <img 
             src={product.image_urls[0]} 
             alt={product.name}
-            className="w-full h-full object-cover"
+            className={viewMode === 'list' 
+              ? 'w-full h-full object-cover'  // crop image to fill fixed container height in list view
+              : 'w-full h-auto object-contain' // preserve ratio, no cropping in grid view
+            }
             loading="lazy"
           />
         ) : (

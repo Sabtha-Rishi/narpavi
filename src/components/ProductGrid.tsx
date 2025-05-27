@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Product, ViewMode } from '@/types';
 import ProductCard from './ProductCard';
@@ -35,8 +34,15 @@ const ProductGrid: React.FC<ProductGridProps> = ({
         key={index} 
         className={`product-card ${viewMode === 'list' ? 'flex flex-col md:flex-row' : ''}`}
       >
-        <div className={`product-image-wrapper ${viewMode === 'list' ? 'md:w-1/3' : ''} h-[200px]`}>
-          <Skeleton className="w-full h-full bg-earthy-beige/30" />
+        <div 
+          // For list mode: fixed height container for image
+          // For grid mode: no fixed height, let Skeleton fill width and auto height
+          className={`product-image-wrapper ${viewMode === 'list' ? 'md:w-1/3 h-[200px]' : ''}`}
+        >
+          <Skeleton 
+            className={`w-full ${viewMode === 'list' ? 'h-full' : 'h-auto bg-earthy-beige/30'}`} 
+            // style prop is optional here; Tailwind handles it well
+          />
         </div>
         <div className={`p-4 ${viewMode === 'list' ? 'md:w-2/3' : ''}`}>
           <Skeleton className="h-6 w-3/4 mb-2 bg-earthy-beige/30" />
