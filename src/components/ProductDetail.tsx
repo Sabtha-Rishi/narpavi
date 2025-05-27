@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Product } from '@/types';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -22,9 +21,9 @@ interface ProductDetailProps {
 
 const ProductDetail: React.FC<ProductDetailProps> = ({ product, isOpen, onClose, displaySettings }) => {
   const [activeImageIndex, setActiveImageIndex] = useState(0);
-  
+
   if (!product) return null;
-  
+
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('en-IN', {
       style: 'currency',
@@ -32,15 +31,15 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product, isOpen, onClose,
       minimumFractionDigits: 0,
     }).format(value);
   };
-  
+
   const handlePrevImage = () => {
-    setActiveImageIndex((prev) => 
+    setActiveImageIndex((prev) =>
       prev === 0 ? (product.image_urls.length - 1) : prev - 1
     );
   };
-  
+
   const handleNextImage = () => {
-    setActiveImageIndex((prev) => 
+    setActiveImageIndex((prev) =>
       prev === (product.image_urls.length - 1) ? 0 : prev + 1
     );
   };
@@ -51,28 +50,28 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product, isOpen, onClose,
         <DialogHeader>
           <DialogTitle className="text-xl font-semibold text-earthy-brown">{product.name}</DialogTitle>
         </DialogHeader>
-        
+
         <div className="grid md:grid-cols-2 gap-6 mt-4">
           {/* Product Images */}
           <div className="space-y-2">
-            <div className="relative aspect-square bg-earthy-beige/20 rounded-md overflow-hidden">
+            <div className="relative bg-earthy-beige/20 rounded-md overflow-hidden">
               {product.image_urls && product.image_urls.length > 0 ? (
                 <>
-                  <img 
-                    src={product.image_urls[activeImageIndex]} 
+                  <img
+                    src={product.image_urls[activeImageIndex]}
                     alt={`${product.name} - Image ${activeImageIndex + 1}`}
-                    className="w-full h-full object-cover"
+                    className="w-full h-auto object-contain"
                   />
-                  
+
                   {product.image_urls.length > 1 && (
                     <>
-                      <button 
+                      <button
                         onClick={handlePrevImage}
                         className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-earthy-brown hover:text-earthy-maroon rounded-full p-1.5 transition-all duration-300"
                       >
                         <ChevronLeft className="h-5 w-5" />
                       </button>
-                      <button 
+                      <button
                         onClick={handleNextImage}
                         className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-earthy-brown hover:text-earthy-maroon rounded-full p-1.5 transition-all duration-300"
                       >
@@ -87,7 +86,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product, isOpen, onClose,
                 </div>
               )}
             </div>
-            
+
             {/* Thumbnail Gallery */}
             {product.image_urls && product.image_urls.length > 1 && (
               <div className="flex gap-2 overflow-x-auto pb-2">
@@ -99,8 +98,8 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product, isOpen, onClose,
                       index === activeImageIndex ? 'border-earthy-brown' : 'border-earthy-beige/50 hover:border-earthy-beige'
                     }`}
                   >
-                    <img 
-                      src={url} 
+                    <img
+                      src={url}
                       alt={`${product.name} thumbnail ${index + 1}`}
                       className="w-full h-full object-cover"
                     />
@@ -109,7 +108,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product, isOpen, onClose,
               </div>
             )}
           </div>
-          
+
           {/* Product Info */}
           <div className="space-y-4">
             {displaySettings.showPrice && (
@@ -124,7 +123,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product, isOpen, onClose,
                 )}
               </div>
             )}
-            
+
             {displaySettings.showStock && (
               <div className="text-sm">
                 {product.stock_quantity > 0 ? (
@@ -136,33 +135,33 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product, isOpen, onClose,
                 )}
               </div>
             )}
-            
+
             <Tabs defaultValue="description" className="w-full">
               <TabsList className="grid grid-cols-3 w-full bg-earthy-beige/20">
-                <TabsTrigger 
+                <TabsTrigger
                   value="description"
                   className="data-[state=active]:bg-earthy-brown data-[state=active]:text-white"
                 >
                   Description
                 </TabsTrigger>
-                <TabsTrigger 
+                <TabsTrigger
                   value="details"
                   className="data-[state=active]:bg-earthy-brown data-[state=active]:text-white"
                 >
                   Details
                 </TabsTrigger>
-                <TabsTrigger 
+                <TabsTrigger
                   value="culture"
                   className="data-[state=active]:bg-earthy-brown data-[state=active]:text-white"
                 >
                   Cultural
                 </TabsTrigger>
               </TabsList>
-              
+
               <TabsContent value="description" className="mt-4 animate-slide-in">
                 <p className="text-sm leading-relaxed">{product.description}</p>
               </TabsContent>
-              
+
               <TabsContent value="details" className="mt-4 animate-slide-in">
                 <div className="space-y-2 text-sm">
                   {displaySettings.showMaterial && (
@@ -171,40 +170,40 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product, isOpen, onClose,
                       <span>{product.material}</span>
                     </div>
                   )}
-                  
+
                   {displaySettings.showDimensions && product.dimensions && (
                     <div className="flex justify-between border-b border-earthy-beige/50 pb-1">
                       <span className="font-medium text-earthy-brown">Dimensions</span>
                       <span>{product.dimensions}</span>
                     </div>
                   )}
-                  
+
                   {product.weight && (
                     <div className="flex justify-between border-b border-earthy-beige/50 pb-1">
                       <span className="font-medium text-earthy-brown">Weight</span>
                       <span>{product.weight}</span>
                     </div>
                   )}
-                  
+
                   {displaySettings.showVendor && product.region_of_origin && (
                     <div className="flex justify-between border-b border-earthy-beige/50 pb-1">
                       <span className="font-medium text-earthy-brown">Origin</span>
                       <span>{product.region_of_origin}</span>
                     </div>
                   )}
-                  
+
                   {displaySettings.showVendor && product.artisan && (
                     <div className="flex justify-between border-b border-earthy-beige/50 pb-1">
                       <span className="font-medium text-earthy-brown">Artisan</span>
                       <span>{product.artisan}</span>
                     </div>
                   )}
-                  
+
                   <div className="flex justify-between border-b border-earthy-beige/50 pb-1">
                     <span className="font-medium text-earthy-brown">Category</span>
                     <span>{product.category}</span>
                   </div>
-                  
+
                   {product.subcategory && (
                     <div className="flex justify-between border-b border-earthy-beige/50 pb-1">
                       <span className="font-medium text-earthy-brown">Subcategory</span>
@@ -213,7 +212,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product, isOpen, onClose,
                   )}
                 </div>
               </TabsContent>
-              
+
               <TabsContent value="culture" className="mt-4 animate-slide-in">
                 <div className="space-y-3 text-sm">
                   {product.related_gods && product.related_gods.length > 0 && (
@@ -228,7 +227,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product, isOpen, onClose,
                       </div>
                     </div>
                   )}
-                  
+
                   {product.occasions && product.occasions.length > 0 && (
                     <div>
                       <h4 className="font-medium mb-1 text-earthy-brown">Occasions/Festivals:</h4>
@@ -241,7 +240,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product, isOpen, onClose,
                       </div>
                     </div>
                   )}
-                  
+
                   {displaySettings.showTags && product.tags && product.tags.length > 0 && (
                     <div>
                       <h4 className="font-medium mb-1 text-earthy-brown">Tags:</h4>
@@ -257,15 +256,6 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product, isOpen, onClose,
                 </div>
               </TabsContent>
             </Tabs>
-            
-            <div className="pt-4">
-              <Button className="w-full bg-earthy-brown hover:bg-earthy-brown/90 text-white">
-                Contact for Purchase
-              </Button>
-              <p className="text-xs text-muted-foreground mt-2 text-center">
-                This is a catalog website. Please contact us to purchase this item.
-              </p>
-            </div>
           </div>
         </div>
       </DialogContent>
