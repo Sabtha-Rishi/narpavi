@@ -32,6 +32,10 @@ export type Database = {
           subcategory: string | null
           tags: string[] | null
           weight: string | null
+          sku: string | null
+          width_in: number | null
+          depth_in: number | null
+          height_in: number | null
         }
         Insert: {
           artisan?: string | null
@@ -55,6 +59,10 @@ export type Database = {
           subcategory?: string | null
           tags?: string[] | null
           weight?: string | null
+          sku?: string | null
+          width_in?: number | null
+          depth_in?: number | null
+          height_in?: number | null
         }
         Update: {
           artisan?: string | null
@@ -78,6 +86,10 @@ export type Database = {
           subcategory?: string | null
           tags?: string[] | null
           weight?: string | null
+          sku?: string | null
+          width_in?: number | null
+          depth_in?: number | null
+          height_in?: number | null
         }
         Relationships: []
       }

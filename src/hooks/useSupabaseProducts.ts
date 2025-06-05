@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import type { Product, FilterOptions } from '../types';
@@ -30,14 +29,19 @@ export const useProducts = (
         .from('products')
         .select('*', { count: 'exact' });
       
-      // Apply text search filters
+      // Apply text search filters - Enhanced to include new fields
       if (filters.search) {
         query = query.or(
           `name.ilike.%${filters.search}%,` +
           `description.ilike.%${filters.search}%,` +
           `tags.cs.{${filters.search}},` +
           `related_gods.cs.{${filters.search}},` +
-          `material.ilike.%${filters.search}%`
+          `material.ilike.%${filters.search}%,` +
+          `dimensions.ilike.%${filters.search}%,` +
+          `weight.ilike.%${filters.search}%,` +
+          `sku.ilike.%${filters.search}%,` +
+          `artisan.ilike.%${filters.search}%,` +
+          `region_of_origin.ilike.%${filters.search}%`
         );
       }
       
@@ -68,6 +72,29 @@ export const useProducts = (
         query = query
           .gte('price', filters.priceRange.min)
           .lte('price', filters.priceRange.max);
+      }
+      
+      // Apply specific dimension searches using database columns
+      if (filters.widthSearch) {
+        query = query.eq('width_in', parseFloat(filters.widthSearch));
+      }
+
+      if (filters.heightSearch) {
+        query = query.eq('height_in', parseFloat(filters.heightSearch));
+      }
+
+      if (filters.depthSearch) {
+        query = query.eq('depth_in', parseFloat(filters.depthSearch));
+      }
+
+      // Apply SKU search
+      if (filters.skuSearch) {
+        query = query.ilike('sku', `%${filters.skuSearch}%`);
+      }
+
+      // Apply weight search
+      if (filters.weightSearch) {
+        query = query.ilike('weight', `%${filters.weightSearch}%`);
       }
       
       // Apply sorting

@@ -1,4 +1,3 @@
-
 import React, { useState, useCallback, useEffect, useMemo } from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -43,7 +42,7 @@ const Index: React.FC = () => {
   
   const pageSize = 12;
   
-  // Memoized filters object that includes search query
+  // Memoized filters object that includes search query and advanced filters
   const activeFilters = useMemo(() => {
     return { ...filters, search: searchQuery };
   }, [filters, searchQuery]);
@@ -109,6 +108,20 @@ const Index: React.FC = () => {
     localStorage.setItem('displaySettings', JSON.stringify(newSettings));
   }, []);
   
+  const handleAdvancedSearch = useCallback((advancedFilters: {
+    widthSearch?: string;
+    heightSearch?: string;
+    depthSearch?: string;
+    skuSearch?: string;
+    weightSearch?: string;
+  }) => {
+    setFilters(prev => ({ 
+      ...prev, 
+      ...advancedFilters 
+    }));
+    setCurrentPage(1); // Reset to first page when filters change
+  }, []);
+  
   // Load saved settings from localStorage on mount
   useEffect(() => {
     const savedSettings = localStorage.getItem('displaySettings');
@@ -126,7 +139,8 @@ const Index: React.FC = () => {
       <Header 
         searchQuery={searchQuery} 
         setSearchQuery={setSearchQuery} 
-        openSettings={handleSettingsOpen} 
+        openSettings={handleSettingsOpen}
+        onAdvancedSearch={handleAdvancedSearch}
       />
       
       <main className="container mx-auto px-4 py-6 sm:py-8 flex-grow">

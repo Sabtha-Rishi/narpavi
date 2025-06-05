@@ -3,7 +3,10 @@ import { Product } from '@/types';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Copy } from 'lucide-react';
+import { formatWeight, copyProductToClipboard, generateDescriptionFromData } from '@/lib/productUtils';
+import DimensionsTable from './DimensionsTable';
+import { useToast } from '@/components/ui/use-toast';
 
 interface ProductDetailProps {
   product: Product | null;
@@ -21,6 +24,7 @@ interface ProductDetailProps {
 
 const ProductDetail: React.FC<ProductDetailProps> = ({ product, isOpen, onClose, displaySettings }) => {
   const [activeImageIndex, setActiveImageIndex] = useState(0);
+  const { toast } = useToast();
 
   if (!product) return null;
 
@@ -31,6 +35,17 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product, isOpen, onClose,
       minimumFractionDigits: 0,
     }).format(value);
   };
+
+  const displayDescription = generateDescriptionFromData(product);
+  
+  // Check if description was generated (not from original product description)
+  const isGeneratedDescription = !product.description || 
+    typeof product.description !== 'string' || 
+    !product.description.trim() || 
+    product.description.trim().length < 5 ||
+    product.description.toLowerCase().includes('nan') ||
+    product.description === 'null' ||
+    product.description === 'undefined';
 
   const handlePrevImage = () => {
     setActiveImageIndex((prev) =>
@@ -44,23 +59,52 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product, isOpen, onClose,
     );
   };
 
+  const handleCopyToClipboard = async () => {
+    const success = await copyProductToClipboard(product);
+    if (success) {
+      toast({
+        title: "Copied to clipboard!",
+        description: "Product details copied. You can now paste and share on any platform.",
+        duration: 3000,
+      });
+    } else {
+      toast({
+        title: "Copy failed",
+        description: "Unable to copy to clipboard. Please try again.",
+        variant: "destructive",
+        duration: 3000,
+      });
+    }
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-w-3xl w-[90vw] max-h-[90vh] overflow-y-auto bg-background border-earthy-beige/50">
-        <DialogHeader>
+      <DialogContent className="max-w-4xl w-[95vw] max-h-[90vh] overflow-y-auto bg-background border-earthy-beige/50">
+        <DialogHeader className="flex flex-row items-center justify-between">
           <DialogTitle className="text-xl font-semibold text-earthy-brown">{product.name}</DialogTitle>
+          
+          {/* Copy button in header */}
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={handleCopyToClipboard}
+            className="flex items-center gap-2 hover:bg-earthy-beige/20"
+          >
+            <Copy className="h-4 w-4" />
+            Copy Details
+          </Button>
         </DialogHeader>
 
         <div className="grid md:grid-cols-2 gap-6 mt-4">
           {/* Product Images */}
           <div className="space-y-2">
-            <div className="relative bg-earthy-beige/20 rounded-md overflow-hidden">
+            <div className="product-detail-image-wrapper">
               {product.image_urls && product.image_urls.length > 0 ? (
                 <>
                   <img
                     src={product.image_urls[activeImageIndex]}
                     alt={`${product.name} - Image ${activeImageIndex + 1}`}
-                    className="w-full h-auto object-contain"
+                    className="product-detail-image"
                   />
 
                   {product.image_urls.length > 1 && (
@@ -159,55 +203,82 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product, isOpen, onClose,
               </TabsList>
 
               <TabsContent value="description" className="mt-4 animate-slide-in">
-                <p className="text-sm leading-relaxed">{product.description}</p>
+                <p className="text-sm leading-relaxed">{displayDescription}</p>
+                {isGeneratedDescription && (
+                  <div className="mt-3 p-3 bg-earthy-beige/10 rounded-lg border-l-4 border-earthy-ochre">
+                    <p className="text-xs text-earthy-brown/70 italic">
+                      ✨ This description has been generated from available product details to provide you with comprehensive information about this beautiful artisan piece.
+                    </p>
+                  </div>
+                )}
               </TabsContent>
 
               <TabsContent value="details" className="mt-4 animate-slide-in">
-                <div className="space-y-2 text-sm">
+                <div className="space-y-4 text-sm">
                   {displaySettings.showMaterial && (
-                    <div className="flex justify-between border-b border-earthy-beige/50 pb-1">
+                    <div className="flex justify-between border-b border-earthy-beige/50 pb-2">
                       <span className="font-medium text-earthy-brown">Material</span>
                       <span>{product.material}</span>
                     </div>
                   )}
 
-                  {displaySettings.showDimensions && product.dimensions && (
-                    <div className="flex justify-between border-b border-earthy-beige/50 pb-1">
-                      <span className="font-medium text-earthy-brown">Dimensions</span>
-                      <span>{product.dimensions}</span>
+                  {displaySettings.showDimensions && (
+                    <div className="border-b border-earthy-beige/50 pb-4">
+                      <div className="mb-3">
+                        <span className="font-medium text-earthy-brown">Dimensions</span>
+                      </div>
+                      <div className="w-full">
+                        <DimensionsTable product={product} />
+                      </div>
                     </div>
                   )}
 
                   {product.weight && (
-                    <div className="flex justify-between border-b border-earthy-beige/50 pb-1">
+                    <div className="flex justify-between border-b border-earthy-beige/50 pb-2">
                       <span className="font-medium text-earthy-brown">Weight</span>
-                      <span>{product.weight}</span>
+                      <span>{formatWeight(product.weight)}</span>
+                    </div>
+                  )}
+
+                  {product.sku && (
+                    <div className="flex justify-between border-b border-earthy-beige/50 pb-2">
+                      <span className="font-medium text-earthy-brown">SKU</span>
+                      <span className="font-mono text-xs bg-earthy-beige/20 px-2 py-1 rounded">{product.sku}</span>
                     </div>
                   )}
 
                   {displaySettings.showVendor && product.region_of_origin && (
-                    <div className="flex justify-between border-b border-earthy-beige/50 pb-1">
+                    <div className="flex justify-between border-b border-earthy-beige/50 pb-2">
                       <span className="font-medium text-earthy-brown">Origin</span>
                       <span>{product.region_of_origin}</span>
                     </div>
                   )}
 
                   {displaySettings.showVendor && product.artisan && (
-                    <div className="flex justify-between border-b border-earthy-beige/50 pb-1">
+                    <div className="flex justify-between border-b border-earthy-beige/50 pb-2">
                       <span className="font-medium text-earthy-brown">Artisan</span>
                       <span>{product.artisan}</span>
                     </div>
                   )}
 
-                  <div className="flex justify-between border-b border-earthy-beige/50 pb-1">
+                  <div className="flex justify-between border-b border-earthy-beige/50 pb-2">
                     <span className="font-medium text-earthy-brown">Category</span>
                     <span>{product.category}</span>
                   </div>
 
                   {product.subcategory && (
-                    <div className="flex justify-between border-b border-earthy-beige/50 pb-1">
+                    <div className="flex justify-between border-b border-earthy-beige/50 pb-2">
                       <span className="font-medium text-earthy-brown">Subcategory</span>
                       <span>{product.subcategory}</span>
+                    </div>
+                  )}
+
+                  {displaySettings.showStock && (
+                    <div className="flex justify-between">
+                      <span className="font-medium text-earthy-brown">Stock</span>
+                      <span className={product.stock_quantity > 0 ? 'text-green-600' : 'text-red-500'}>
+                        {product.stock_quantity > 0 ? `${product.stock_quantity} available` : 'Out of stock'}
+                      </span>
                     </div>
                   )}
                 </div>
@@ -252,6 +323,10 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product, isOpen, onClose,
                         ))}
                       </div>
                     </div>
+                  )}
+
+                  {!product.related_gods?.length && !product.occasions?.length && (!displaySettings.showTags || !product.tags?.length) && (
+                    <p className="text-sm text-earthy-brown/60 italic">Cultural information not available for this product.</p>
                   )}
                 </div>
               </TabsContent>

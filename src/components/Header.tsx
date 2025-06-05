@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 import SearchBar from './SearchBar';
@@ -9,9 +8,21 @@ interface HeaderProps {
   searchQuery: string;
   setSearchQuery: (query: string) => void;
   openSettings: () => void;
+  onAdvancedSearch?: (filters: {
+    widthSearch?: string;
+    heightSearch?: string;
+    depthSearch?: string;
+    skuSearch?: string;
+    weightSearch?: string;
+  }) => void;
 }
 
-const Header: React.FC<HeaderProps> = ({ searchQuery, setSearchQuery, openSettings }) => {
+const Header: React.FC<HeaderProps> = ({ 
+  searchQuery, 
+  setSearchQuery, 
+  openSettings,
+  onAdvancedSearch 
+}) => {
   return (
     <header className="sticky top-0 z-10 bg-background/95 backdrop-blur-sm border-b border-earthy-beige/70 py-4 shadow-sm transition-all duration-300">
       <div className="container mx-auto px-4">
@@ -25,7 +36,11 @@ const Header: React.FC<HeaderProps> = ({ searchQuery, setSearchQuery, openSettin
           
           <div className="flex items-center gap-4 w-full md:w-auto">
             <div className="relative w-full md:w-80 lg:w-96">
-              <SearchBar value={searchQuery} onChange={setSearchQuery} />
+              <SearchBar 
+                value={searchQuery} 
+                onChange={setSearchQuery}
+                onAdvancedSearch={onAdvancedSearch}
+              />
             </div>
             <Button 
               variant="ghost" 

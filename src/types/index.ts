@@ -1,4 +1,3 @@
-
 export interface Product {
   id: number;
   name: string;
@@ -21,6 +20,10 @@ export interface Product {
   is_bestseller?: boolean;
   is_new_arrival?: boolean;
   created_at: string;
+  sku?: string;
+  width_in?: number;
+  depth_in?: number;
+  height_in?: number;
 }
 
 export interface FilterOptions {
@@ -34,6 +37,11 @@ export interface FilterOptions {
   categories?: string[];
   sort?: 'price-asc' | 'price-desc' | 'newest' | 'featured' | 'popular';
   search?: string;
+  widthSearch?: string;
+  heightSearch?: string;
+  depthSearch?: string;
+  skuSearch?: string;
+  weightSearch?: string;
 }
 
 export type ViewMode = 'grid' | 'list';
