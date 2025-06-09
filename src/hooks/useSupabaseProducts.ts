@@ -24,25 +24,180 @@ export const useProducts = (
     setError(null);
     
     try {
-      // Start building the query
       let query = supabase
         .from('products')
         .select('*', { count: 'exact' });
       
-      // Apply text search filters - Enhanced to include new fields
+      // Apply search filters
       if (filters.search) {
-        query = query.or(
-          `name.ilike.%${filters.search}%,` +
-          `description.ilike.%${filters.search}%,` +
-          `tags.cs.{${filters.search}},` +
-          `related_gods.cs.{${filters.search}},` +
-          `material.ilike.%${filters.search}%,` +
-          `dimensions.ilike.%${filters.search}%,` +
-          `weight.ilike.%${filters.search}%,` +
-          `sku.ilike.%${filters.search}%,` +
-          `artisan.ilike.%${filters.search}%,` +
-          `region_of_origin.ilike.%${filters.search}%`
-        );
+        const searchTerm = filters.search.trim();
+        
+        if (searchTerm) {
+          // First, try to get results from a comprehensive search
+          // If no filters except search, do a special comprehensive search
+          const hasOtherFilters = filters.categories?.length || filters.gods?.length || 
+                                filters.occasions?.length || filters.materials?.length || 
+                                filters.priceRange || filters.widthSearch || filters.heightSearch || 
+                                filters.depthSearch || filters.skuSearch || filters.weightSearch ||
+                                filters.widthRange || filters.heightRange || filters.depthRange || filters.weightRange;
+          
+          if (!hasOtherFilters) {
+            // For search-only queries, get all products and filter comprehensively
+            const { data: allProducts } = await supabase
+              .from('products')
+              .select('*');
+            
+            if (allProducts) {
+              const searchLower = searchTerm.toLowerCase();
+              
+              // Helper function to extract weight in kg from a string
+              const extractWeightInKg = (weightStr: string): number | null => {
+                if (!weightStr) return null;
+                
+                const str = weightStr.toLowerCase().replace(/\s+/g, '');
+                
+                // Match patterns like: 2kg, 2.5kg, 500g, 1500g, 2, 2.5
+                const kgMatch = str.match(/(\d+(?:\.\d+)?)\s*kg/);
+                if (kgMatch) {
+                  return parseFloat(kgMatch[1]);
+                }
+                
+                const gMatch = str.match(/(\d+(?:\.\d+)?)\s*g$/);
+                if (gMatch) {
+                  return parseFloat(gMatch[1]) / 1000; // Convert grams to kg
+                }
+                
+                // If just a number, assume kg
+                const numberMatch = str.match(/^(\d+(?:\.\d+)?)$/);
+                if (numberMatch) {
+                  return parseFloat(numberMatch[1]);
+                }
+                
+                return null;
+              };
+              
+              // Check if search term is a weight query
+              const searchWeight = extractWeightInKg(searchTerm);
+              
+              const matchedProducts = (allProducts as Product[]).filter(product => {
+                // Weight-based search - show products with weight >= searched weight
+                if (searchWeight !== null && product.weight) {
+                  const productWeight = extractWeightInKg(product.weight);
+                  if (productWeight !== null && productWeight >= searchWeight) {
+                    return true;
+                  }
+                }
+                
+                // Apply other filters if present (for comprehensive filtering)
+                // Weight range filter
+                if (filters.weightRange && product.weight) {
+                  const productWeight = extractWeightInKg(product.weight);
+                  if (productWeight !== null) {
+                    if (productWeight < filters.weightRange.min || productWeight > filters.weightRange.max) {
+                      return false;
+                    }
+                  }
+                }
+                
+                // Dimension range filters
+                if (filters.widthRange && product.width_in !== null) {
+                  if (product.width_in < filters.widthRange.min || product.width_in > filters.widthRange.max) {
+                    return false;
+                  }
+                }
+                
+                if (filters.heightRange && product.height_in !== null) {
+                  if (product.height_in < filters.heightRange.min || product.height_in > filters.heightRange.max) {
+                    return false;
+                  }
+                }
+                
+                if (filters.depthRange && product.depth_in !== null) {
+                  if (product.depth_in < filters.depthRange.min || product.depth_in > filters.depthRange.max) {
+                    return false;
+                  }
+                }
+                
+                // Text field searches (excluding weight for separate handling)
+                const textFields = [
+                  product.name,
+                  product.description,
+                  product.material,
+                  product.dimensions,
+                  product.sku,
+                  product.artisan,
+                  product.region_of_origin,
+                  product.category,
+                  product.subcategory
+                ];
+                
+                const textMatch = textFields.some(field => 
+                  field?.toLowerCase().includes(searchLower)
+                );
+                
+                // Weight text search (for non-numeric weight searches)
+                const weightTextMatch = searchWeight === null && 
+                  product.weight?.toLowerCase().includes(searchLower);
+                
+                // Array field searches
+                const arrayMatch = [
+                  ...(product.related_gods || []),
+                  ...(product.tags || []),
+                  ...(product.occasions || [])
+                ].some(item => item?.toLowerCase().includes(searchLower));
+                
+                return textMatch || weightTextMatch || arrayMatch;
+              });
+              
+              // Apply sorting
+              let sortedProducts = matchedProducts;
+              switch (filters.sort) {
+                case 'price-asc':
+                  sortedProducts = matchedProducts.sort((a, b) => a.price - b.price);
+                  break;
+                case 'price-desc':
+                  sortedProducts = matchedProducts.sort((a, b) => b.price - a.price);
+                  break;
+                case 'newest':
+                  sortedProducts = matchedProducts.sort((a, b) => 
+                    new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+                  );
+                  break;
+                case 'featured':
+                  sortedProducts = matchedProducts.filter(p => p.is_featured).sort((a, b) => a.id - b.id);
+                  break;
+                case 'popular':
+                  sortedProducts = matchedProducts.filter(p => p.is_bestseller).sort((a, b) => a.id - b.id);
+                  break;
+                default:
+                  sortedProducts = matchedProducts.sort((a, b) => a.id - b.id);
+              }
+              
+              // Apply pagination
+              const startIndex = (page - 1) * pageSize;
+              const endIndex = startIndex + pageSize;
+              const paginatedProducts = sortedProducts.slice(startIndex, endIndex);
+              
+              setProducts(paginatedProducts);
+              setTotalCount(sortedProducts.length);
+              return;
+            }
+          } else {
+            // For queries with other filters, use server-side search for text fields only
+            query = query.or(
+              `name.ilike.%${searchTerm}%,` +
+              `description.ilike.%${searchTerm}%,` +
+              `material.ilike.%${searchTerm}%,` +
+              `dimensions.ilike.%${searchTerm}%,` +
+              `weight.ilike.%${searchTerm}%,` +
+              `sku.ilike.%${searchTerm}%,` +
+              `artisan.ilike.%${searchTerm}%,` +
+              `region_of_origin.ilike.%${searchTerm}%,` +
+              `category.ilike.%${searchTerm}%,` +
+              `subcategory.ilike.%${searchTerm}%`
+            );
+          }
+        }
       }
       
       // Apply array-based filters
@@ -96,6 +251,26 @@ export const useProducts = (
       if (filters.weightSearch) {
         query = query.ilike('weight', `%${filters.weightSearch}%`);
       }
+
+      // Apply dimension range filters
+      if (filters.widthRange) {
+        query = query.gte('width_in', filters.widthRange.min);
+        query = query.lte('width_in', filters.widthRange.max);
+      }
+
+      if (filters.heightRange) {
+        query = query.gte('height_in', filters.heightRange.min);
+        query = query.lte('height_in', filters.heightRange.max);
+      }
+
+      if (filters.depthRange) {
+        query = query.gte('depth_in', filters.depthRange.min);
+        query = query.lte('depth_in', filters.depthRange.max);
+      }
+
+      // Weight range filtering is now handled client-side for better accuracy
+      // The server-side weight field contains strings like "2kg", "500g" which can't be directly compared
+      // So we skip server-side weight range filtering and handle it in the client-side filter above
       
       // Apply sorting
       switch (filters.sort) {

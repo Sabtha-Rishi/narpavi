@@ -180,19 +180,19 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product, isOpen, onClose,
               </div>
             )}
 
-            <Tabs defaultValue="description" className="w-full">
+            <Tabs defaultValue="details" className="w-full">
               <TabsList className="grid grid-cols-3 w-full bg-earthy-beige/20">
-                <TabsTrigger
-                  value="description"
-                  className="data-[state=active]:bg-earthy-brown data-[state=active]:text-white"
-                >
-                  Description
-                </TabsTrigger>
                 <TabsTrigger
                   value="details"
                   className="data-[state=active]:bg-earthy-brown data-[state=active]:text-white"
                 >
                   Details
+                </TabsTrigger>
+                <TabsTrigger
+                  value="description"
+                  className="data-[state=active]:bg-earthy-brown data-[state=active]:text-white"
+                >
+                  Description
                 </TabsTrigger>
                 <TabsTrigger
                   value="culture"
@@ -225,7 +225,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product, isOpen, onClose,
                   {displaySettings.showDimensions && (
                     <div className="border-b border-earthy-beige/50 pb-4">
                       <div className="mb-3">
-                        <span className="font-medium text-earthy-brown">Dimensions</span>
+                      <span className="font-medium text-earthy-brown">Dimensions</span>
                       </div>
                       <div className="w-full">
                         <DimensionsTable product={product} />

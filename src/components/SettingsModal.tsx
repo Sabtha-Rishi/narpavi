@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -42,7 +41,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
       settings: {
         showStock: true,
         showPrice: true,
-        showDimensions: false,
+        showDimensions: true,
         showMaterial: true, 
         showTags: false,
         showVendor: false

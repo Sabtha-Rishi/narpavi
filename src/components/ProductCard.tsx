@@ -120,19 +120,19 @@ const ProductCard: React.FC<ProductCardProps> = ({
         )}
 
         {discountPercentage > 0 && (
-          <span className="absolute top-2 left-2 bg-earthy-maroon text-white text-sm px-2 py-1 rounded-full z-10">
+          <span className="absolute top-2 left-2 bg-earthy-maroon text-white text-sm px-2 py-1 rounded-full z-[5]">
             -{discountPercentage}%
           </span>
         )}
 
         {product.is_bestseller && (
-          <span className="absolute top-2 left-2 bg-earthy-gold text-earthy-brown text-xs font-medium px-2 py-1 rounded-full z-10">
+          <span className="absolute top-2 left-2 bg-earthy-gold text-earthy-brown text-xs font-medium px-2 py-1 rounded-full z-[5]">
             Best Seller
           </span>
         )}
 
         {!product.is_bestseller && product.is_new_arrival && (
-          <span className="absolute top-2 left-2 bg-earthy-ochre text-white text-xs font-medium px-2 py-1 rounded-full z-10">
+          <span className="absolute top-2 left-2 bg-earthy-ochre text-white text-xs font-medium px-2 py-1 rounded-full z-[5]">
             New Arrival
           </span>
         )}

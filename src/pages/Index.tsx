@@ -30,11 +30,11 @@ const Index: React.FC = () => {
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   
-  // Display settings with defaults
+  // Display settings with defaults - dimensions now visible by default
   const [displaySettings, setDisplaySettings] = useState({
     showStock: true,
     showPrice: true,
-    showDimensions: false,
+    showDimensions: true,
     showMaterial: true,
     showTags: true,
     showVendor: true
@@ -114,6 +114,10 @@ const Index: React.FC = () => {
     depthSearch?: string;
     skuSearch?: string;
     weightSearch?: string;
+    widthRange?: { min: number; max: number };
+    heightRange?: { min: number; max: number };
+    depthRange?: { min: number; max: number };
+    weightRange?: { min: number; max: number };
   }) => {
     setFilters(prev => ({ 
       ...prev, 

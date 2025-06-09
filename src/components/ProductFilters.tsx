@@ -173,12 +173,12 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
           </span>
         </div>
         
-        <Slider
+          <Slider
           value={priceValues}
           onValueChange={handlePriceChange}
-          min={filterOptions.priceRange.min}
-          max={filterOptions.priceRange.max}
-          step={100}
+            min={filterOptions.priceRange.min}
+            max={filterOptions.priceRange.max}
+            step={100}
           className="w-full mt-4"
         />
         
@@ -312,60 +312,60 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
         <ScrollArea className="h-[calc(80vh-120px)] mt-4">
           <div className="space-y-6 pb-8">
             <PriceFilter />
-            
-            <Separator />
-            
-            <FilterGroup
-              title="Related Gods"
-              items={filterOptions.gods}
-              selectedItems={localFilters.gods}
-              onChange={handleGodsChange}
-            />
-            
-            <Separator />
-            
-            <FilterGroup
-              title="Occasions"
-              items={filterOptions.occasions}
-              selectedItems={localFilters.occasions}
-              onChange={handleOccasionsChange}
-            />
-            
-            <Separator />
-            
-            <FilterGroup
-              title="Materials"
-              items={filterOptions.materials}
-              selectedItems={localFilters.materials}
-              onChange={handleMaterialsChange}
-            />
-            
-            <Separator />
-            
-            <FilterGroup
-              title="Categories"
-              items={filterOptions.categories}
-              selectedItems={localFilters.categories}
-              onChange={handleCategoriesChange}
-            />
+          
+          <Separator />
+          
+          <FilterGroup
+            title="Related Gods"
+            items={filterOptions.gods}
+            selectedItems={localFilters.gods}
+            onChange={handleGodsChange}
+          />
+          
+          <Separator />
+          
+          <FilterGroup
+            title="Occasions"
+            items={filterOptions.occasions}
+            selectedItems={localFilters.occasions}
+            onChange={handleOccasionsChange}
+          />
+          
+          <Separator />
+          
+          <FilterGroup
+            title="Materials"
+            items={filterOptions.materials}
+            selectedItems={localFilters.materials}
+            onChange={handleMaterialsChange}
+          />
+          
+          <Separator />
+          
+          <FilterGroup
+            title="Categories"
+            items={filterOptions.categories}
+            selectedItems={localFilters.categories}
+            onChange={handleCategoriesChange}
+          />
           </div>
         </ScrollArea>
-        
+          
         <div className="absolute bottom-4 left-4 right-4 flex space-x-2">
           <Button 
             onClick={applyFilters} 
             className="flex-1 bg-gradient-to-r from-earthy-brown to-earthy-maroon hover:from-earthy-maroon hover:to-earthy-brown"
           >
-            Apply Filters
-          </Button>
-          
-          <Button 
-            onClick={resetFilters} 
-            variant="outline" 
+              Apply Filters
+            </Button>
+            
+            <Button 
+              onClick={resetFilters} 
+              variant="outline" 
             className="flex-1 border-earthy-beige/50"
-          >
-            Reset
-          </Button>
+            >
+              Reset
+            </Button>
         </div>
       </SheetContent>
     </Sheet>

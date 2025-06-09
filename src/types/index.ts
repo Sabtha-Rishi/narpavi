@@ -42,6 +42,22 @@ export interface FilterOptions {
   depthSearch?: string;
   skuSearch?: string;
   weightSearch?: string;
+  widthRange?: {
+    min: number;
+    max: number;
+  };
+  heightRange?: {
+    min: number;
+    max: number;
+  };
+  depthRange?: {
+    min: number;
+    max: number;
+  };
+  weightRange?: {
+    min: number;
+    max: number;
+  };
 }
 
 export type ViewMode = 'grid' | 'list';
