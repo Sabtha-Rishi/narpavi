@@ -3,15 +3,17 @@ import { Product } from '@/types';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ChevronLeft, ChevronRight, Copy } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Copy, Edit } from 'lucide-react';
 import { formatWeight, copyProductToClipboard, generateDescriptionFromData } from '@/lib/productUtils';
 import DimensionsTable from './DimensionsTable';
 import { useToast } from '@/components/ui/use-toast';
+import ProductEditModal from './ProductEditModal';
 
 interface ProductDetailProps {
   product: Product | null;
   isOpen: boolean;
   onClose: () => void;
+  onProductUpdate?: (updatedProduct: Product) => void;
   displaySettings: {
     showStock: boolean;
     showPrice: boolean;
@@ -22,8 +24,9 @@ interface ProductDetailProps {
   };
 }
 
-const ProductDetail: React.FC<ProductDetailProps> = ({ product, isOpen, onClose, displaySettings }) => {
+const ProductDetail: React.FC<ProductDetailProps> = ({ product, isOpen, onClose, onProductUpdate, displaySettings }) => {
   const [activeImageIndex, setActiveImageIndex] = useState(0);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const { toast } = useToast();
 
   if (!product) return null;
@@ -77,22 +80,48 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product, isOpen, onClose,
     }
   };
 
+  const handleEditProduct = () => {
+    setIsEditModalOpen(true);
+  };
+
+  const handleEditModalClose = () => {
+    setIsEditModalOpen(false);
+  };
+
+  const handleProductSave = (updatedProduct: Product) => {
+    if (onProductUpdate) {
+      onProductUpdate(updatedProduct);
+    }
+    setIsEditModalOpen(false);
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="max-w-4xl w-[95vw] max-h-[90vh] overflow-y-auto bg-background border-earthy-beige/50">
         <DialogHeader className="flex flex-row items-center justify-between">
           <DialogTitle className="text-xl font-semibold text-earthy-brown">{product.name}</DialogTitle>
           
-          {/* Copy button in header */}
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={handleCopyToClipboard}
-            className="flex items-center gap-2 hover:bg-earthy-beige/20"
-          >
-            <Copy className="h-4 w-4" />
-            Copy Details
-          </Button>
+          {/* Action buttons in header */}
+          <div className="flex items-center gap-2">
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={handleEditProduct}
+              className="flex items-center gap-2 hover:bg-earthy-beige/20"
+            >
+              <Edit className="h-4 w-4" />
+              Edit
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={handleCopyToClipboard}
+              className="flex items-center gap-2 hover:bg-earthy-beige/20"
+            >
+              <Copy className="h-4 w-4" />
+              Copy Details
+            </Button>
+          </div>
         </DialogHeader>
 
         <div className="grid md:grid-cols-2 gap-6 mt-4">
@@ -333,6 +362,14 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product, isOpen, onClose,
             </Tabs>
           </div>
         </div>
+
+        {/* Edit Modal */}
+        <ProductEditModal
+          product={product}
+          isOpen={isEditModalOpen}
+          onClose={handleEditModalClose}
+          onSave={handleProductSave}
+        />
       </DialogContent>
     </Dialog>
   );

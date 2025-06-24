@@ -1,4 +1,3 @@
-
 -- Create products table
 CREATE TABLE products (
   id SERIAL PRIMARY KEY,
@@ -21,8 +20,29 @@ CREATE TABLE products (
   is_featured BOOLEAN DEFAULT FALSE,
   is_bestseller BOOLEAN DEFAULT FALSE,
   is_new_arrival BOOLEAN DEFAULT FALSE,
-  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+  is_visible BOOLEAN DEFAULT TRUE,
+  sku VARCHAR(50),
+  width_in DECIMAL(10, 2),
+  height_in DECIMAL(10, 2),
+  depth_in DECIMAL(10, 2),
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+-- Create function to update updated_at timestamp
+CREATE OR REPLACE FUNCTION update_updated_at_column()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.updated_at = NOW();
+    RETURN NEW;
+END;
+$$ language 'plpgsql';
+
+-- Create trigger to automatically update updated_at
+CREATE TRIGGER update_products_updated_at 
+    BEFORE UPDATE ON products 
+    FOR EACH ROW 
+    EXECUTE FUNCTION update_updated_at_column();
 
 -- Create index for search
 CREATE INDEX idx_products_search ON products USING GIN (
@@ -37,6 +57,8 @@ CREATE INDEX idx_products_created_at ON products(created_at);
 CREATE INDEX idx_products_featured ON products(is_featured);
 CREATE INDEX idx_products_bestseller ON products(is_bestseller);
 CREATE INDEX idx_products_new_arrival ON products(is_new_arrival);
+CREATE INDEX idx_products_visible ON products(is_visible);
+CREATE INDEX idx_products_sku ON products(sku);
 
 -- Sample data insertion
 INSERT INTO products (
@@ -58,7 +80,12 @@ INSERT INTO products (
   tags,
   is_featured, 
   is_bestseller, 
-  is_new_arrival
+  is_new_arrival,
+  is_visible,
+  sku,
+  width_in,
+  height_in,
+  depth_in
 ) VALUES
 -- Brass Ganesh Statue
 (
@@ -80,7 +107,12 @@ INSERT INTO products (
   ARRAY['ganesh', 'brass idol', 'home decor', 'pooja'],
   TRUE,
   TRUE,
-  FALSE
+  FALSE,
+  TRUE,
+  'BG001',
+  8.0,
+  5.0,
+  4.0
 ),
 
 -- Wooden Krishna Statue
@@ -103,7 +135,12 @@ INSERT INTO products (
   ARRAY['krishna', 'wooden statue', 'flute', 'rosewood'],
   TRUE,
   FALSE,
-  TRUE
+  TRUE,
+  TRUE,
+  'WK002',
+  12.0,
+  4.0,
+  3.0
 ),
 
 -- Marble Lakshmi
@@ -126,7 +163,12 @@ INSERT INTO products (
   ARRAY['lakshmi', 'marble statue', 'wealth goddess', 'prosperity'],
   FALSE,
   TRUE,
-  FALSE
+  FALSE,
+  TRUE,
+  'ML003',
+  10.0,
+  6.0,
+  4.0
 ),
 
 -- Bronze Dancing Shiva
@@ -149,7 +191,12 @@ INSERT INTO products (
   ARRAY['shiva', 'nataraja', 'dancing', 'bronze', 'cosmic dance'],
   TRUE,
   FALSE,
-  FALSE
+  FALSE,
+  TRUE,
+  'BN004',
+  14.0,
+  10.0,
+  4.0
 ),
 
 -- Clay Diya Set
@@ -172,7 +219,12 @@ INSERT INTO products (
   ARRAY['diya', 'terracotta', 'festival', 'lighting'],
   FALSE,
   TRUE,
-  TRUE
+  TRUE,
+  TRUE,
+  'TD005',
+  2.5,
+  1.5,
+  2.5
 ),
 
 -- Brass Bell
@@ -195,7 +247,12 @@ INSERT INTO products (
   ARRAY['bell', 'temple', 'ritual', 'brass', 'pooja'],
   TRUE,
   FALSE,
-  TRUE
+  TRUE,
+  TRUE,
+  'BB006',
+  3.0,
+  6.0,
+  3.0
 ),
 
 -- Silk Wall Hanging
@@ -218,7 +275,12 @@ INSERT INTO products (
   ARRAY['silk', 'tapestry', 'radha krishna', 'wall hanging', 'banarasi'],
   FALSE,
   TRUE,
-  FALSE
+  FALSE,
+  TRUE,
+  'HS007',
+  36.0,
+  24.0,
+  0.0
 ),
 
 -- Wooden Chariot
@@ -241,7 +303,12 @@ INSERT INTO products (
   ARRAY['chariot', 'ratha', 'temple', 'wooden', 'miniature'],
   TRUE,
   FALSE,
-  TRUE
+  TRUE,
+  TRUE,
+  'MR008',
+  15.0,
+  10.0,
+  12.0
 ),
 
 -- Silver Pooja Thali
@@ -264,7 +331,12 @@ INSERT INTO products (
   ARRAY['pooja thali', 'silver', 'aarti', 'ritual', 'worship'],
   FALSE,
   TRUE,
-  FALSE
+  FALSE,
+  TRUE,
+  'SPT009',
+  12.0,
+  12.0,
+  0.0
 ),
 
 -- Clay Ganesha
@@ -287,7 +359,12 @@ INSERT INTO products (
   ARRAY['eco-friendly', 'ganesh', 'clay', 'festival', 'sustainable'],
   FALSE,
   FALSE,
-  TRUE
+  TRUE,
+  TRUE,
+  'CG010',
+  10.0,
+  10.0,
+  0.0
 ),
 
 -- Wooden Wall Panel
@@ -310,7 +387,12 @@ INSERT INTO products (
   ARRAY['dashavatara', 'wood carving', 'vishnu', 'wall panel', 'religious art'],
   TRUE,
   FALSE,
-  FALSE
+  FALSE,
+  TRUE,
+  'DWP011',
+  48.0,
+  18.0,
+  2.0
 ),
 
 -- Copper Water Pot
@@ -333,7 +415,12 @@ INSERT INTO products (
   ARRAY['copper', 'water', 'ayurveda', 'health', 'traditional'],
   FALSE,
   TRUE,
-  TRUE
+  TRUE,
+  TRUE,
+  'CP012',
+  10.0,
+  6.0,
+  0.0
 );
 
 -- Enable Row-Level Security (RLS)

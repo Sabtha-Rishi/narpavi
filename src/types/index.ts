@@ -19,7 +19,9 @@ export interface Product {
   is_featured?: boolean;
   is_bestseller?: boolean;
   is_new_arrival?: boolean;
+  is_visible?: boolean;
   created_at: string;
+  updated_at?: string;
   sku?: string;
   width_in?: number;
   depth_in?: number;
@@ -58,6 +60,7 @@ export interface FilterOptions {
     min: number;
     max: number;
   };
+  visibility?: 'visible' | 'hidden';
 }
 
 export type ViewMode = 'grid' | 'list';
@@ -69,4 +72,10 @@ export interface DisplaySettings {
   showMaterial: boolean;
   showTags: boolean;
   showVendor: boolean;
+}
+
+export interface ProductVisibilitySettings {
+  showAllProducts: boolean;
+  showVisibleOnly: boolean;
+  showHiddenOnly: boolean;
 }

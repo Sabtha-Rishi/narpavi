@@ -28,6 +28,13 @@ export const useProducts = (
         .from('products')
         .select('*', { count: 'exact' });
       
+      // Apply visibility filters first
+      if (filters.visibility === 'visible') {
+        query = query.eq('is_visible', true);
+      } else if (filters.visibility === 'hidden') {
+        query = query.eq('is_visible', false);
+      }
+
       // Apply search filters
       if (filters.search) {
         const searchTerm = filters.search.trim();
@@ -39,7 +46,8 @@ export const useProducts = (
                                 filters.occasions?.length || filters.materials?.length || 
                                 filters.priceRange || filters.widthSearch || filters.heightSearch || 
                                 filters.depthSearch || filters.skuSearch || filters.weightSearch ||
-                                filters.widthRange || filters.heightRange || filters.depthRange || filters.weightRange;
+                                filters.widthRange || filters.heightRange || filters.depthRange || filters.weightRange ||
+                                filters.visibility;
           
           if (!hasOtherFilters) {
             // For search-only queries, get all products and filter comprehensively

@@ -5,8 +5,9 @@ import ProductGrid from '@/components/ProductGrid';
 import ProductFilters from '@/components/ProductFilters';
 import ProductDetail from '@/components/ProductDetail';
 import SettingsModal from '@/components/SettingsModal';
+import BulkEditModal from '@/components/BulkEditModal';
 import { Button } from '@/components/ui/button';
-import { FilterOptions, ViewMode } from '@/types';
+import { FilterOptions, ViewMode, Product } from '@/types';
 import { useProducts, useSingleProduct } from '@/hooks/useSupabaseProducts';
 import { useFilterOptions } from '@/hooks/useSupabaseProducts';
 import { List, LayoutGrid } from 'lucide-react';
@@ -29,6 +30,7 @@ const Index: React.FC = () => {
   const [selectedProductId, setSelectedProductId] = useState<number | null>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isBulkEditOpen, setIsBulkEditOpen] = useState(false);
   
   // Display settings with defaults - dimensions now visible by default
   const [displaySettings, setDisplaySettings] = useState({
@@ -39,13 +41,27 @@ const Index: React.FC = () => {
     showTags: true,
     showVendor: true
   });
+
+  // Product visibility settings
+  const [visibilitySettings, setVisibilitySettings] = useState({
+    mode: 'all' as 'all' | 'visible' | 'hidden'
+  });
   
   const pageSize = 12;
   
-  // Memoized filters object that includes search query and advanced filters
+  // Memoized filters object that includes search query, advanced filters, and visibility
   const activeFilters = useMemo(() => {
-    return { ...filters, search: searchQuery };
-  }, [filters, searchQuery]);
+    const baseFilters = { ...filters, search: searchQuery };
+    
+    // Add visibility filtering
+    if (visibilitySettings.mode === 'visible') {
+      baseFilters.visibility = 'visible';
+    } else if (visibilitySettings.mode === 'hidden') {
+      baseFilters.visibility = 'hidden';
+    }
+    
+    return baseFilters;
+  }, [filters, searchQuery, visibilitySettings.mode]);
   
   // Load products with memoized filters
   const { products, totalCount, loading: productsLoading } = useProducts(
@@ -102,10 +118,29 @@ const Index: React.FC = () => {
   const handleSettingsClose = useCallback(() => {
     setIsSettingsOpen(false);
   }, []);
+
+  const handleBulkEditOpen = useCallback(() => {
+    setIsBulkEditOpen(true);
+  }, []);
+
+  const handleBulkEditClose = useCallback(() => {
+    setIsBulkEditOpen(false);
+  }, []);
+
+  const handleBulkEditUpdate = useCallback(() => {
+    // Refresh the products list after bulk update
+    // The useProducts hook will automatically refetch
+    setIsBulkEditOpen(false);
+  }, []);
   
   const handleSettingsChange = useCallback((newSettings: typeof displaySettings) => {
     setDisplaySettings(newSettings);
     localStorage.setItem('displaySettings', JSON.stringify(newSettings));
+  }, []);
+
+  const handleVisibilitySettingsChange = useCallback((newSettings: typeof visibilitySettings) => {
+    setVisibilitySettings(newSettings);
+    localStorage.setItem('visibilitySettings', JSON.stringify(newSettings));
   }, []);
   
   const handleAdvancedSearch = useCallback((advancedFilters: {
@@ -125,6 +160,13 @@ const Index: React.FC = () => {
     }));
     setCurrentPage(1); // Reset to first page when filters change
   }, []);
+
+  const handleProductUpdate = useCallback((updatedProduct: Product) => {
+    // Optionally refresh the products list or update the local state
+    // For now, we'll just close the detail modal and let the user know
+    setIsDetailOpen(false);
+    setSelectedProductId(null);
+  }, []);
   
   // Load saved settings from localStorage on mount
   useEffect(() => {
@@ -134,6 +176,15 @@ const Index: React.FC = () => {
         setDisplaySettings(JSON.parse(savedSettings));
       } catch (error) {
         console.error('Error parsing saved display settings:', error);
+      }
+    }
+
+    const savedVisibilitySettings = localStorage.getItem('visibilitySettings');
+    if (savedVisibilitySettings) {
+      try {
+        setVisibilitySettings(JSON.parse(savedVisibilitySettings));
+      } catch (error) {
+        console.error('Error parsing saved visibility settings:', error);
       }
     }
   }, []);
@@ -239,21 +290,32 @@ const Index: React.FC = () => {
       <Footer />
       
       {/* Modals */}
-      <ProductDetail 
-        product={selectedProduct} 
-        isOpen={isDetailOpen} 
-        onClose={handleProductDetailClose}
-        displaySettings={displaySettings} 
-      />
+              <ProductDetail
+          product={selectedProduct}
+          isOpen={isDetailOpen}
+          onClose={handleProductDetailClose}
+          onProductUpdate={handleProductUpdate}
+          displaySettings={displaySettings}
+        />
       
-      <SettingsModal
-        isOpen={isSettingsOpen}
-        onClose={handleSettingsClose}
-        settings={displaySettings}
-        onSettingsChange={handleSettingsChange}
-      />
-    </div>
-  );
-};
+                      <SettingsModal
+          isOpen={isSettingsOpen}
+          onClose={handleSettingsClose}
+          settings={displaySettings}
+          visibilitySettings={visibilitySettings}
+          onSettingsChange={handleSettingsChange}
+          onVisibilitySettingsChange={handleVisibilitySettingsChange}
+          onBulkEditOpen={handleBulkEditOpen}
+        />
 
-export default Index;
+        <BulkEditModal
+          products={products}
+          isOpen={isBulkEditOpen}
+          onClose={handleBulkEditClose}
+          onUpdate={handleBulkEditUpdate}
+        />
+      </div>
+    );
+  };
+  
+  export default Index;
