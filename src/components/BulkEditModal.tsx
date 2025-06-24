@@ -51,13 +51,24 @@ const BulkEditModal: React.FC<BulkEditModalProps> = ({
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [visibilityFilter, setVisibilityFilter] = useState('all');
+  const [showSelectedOnly, setShowSelectedOnly] = useState(false);
   
   const { toast } = useToast();
 
-  // Fetch all products when modal opens
+  // Fetch all products when modal opens and reset selection
   useEffect(() => {
-    if (isOpen && allProducts.length === 0) {
-      fetchAllProducts();
+    if (isOpen) {
+      if (allProducts.length === 0) {
+        fetchAllProducts();
+      }
+      // Reset selection and filters when modal opens
+      setSelectedProducts(new Set());
+      setSearchTerm('');
+      setCategoryFilter('all');
+      setVisibilityFilter('all');
+      setShowSelectedOnly(false);
+      setFieldsToUpdate(new Set());
+      setUpdateData({});
     }
   }, [isOpen]);
 
@@ -125,8 +136,13 @@ const BulkEditModal: React.FC<BulkEditModalProps> = ({
       });
     }
 
+    // Show only selected products if toggle is on
+    if (showSelectedOnly) {
+      filtered = filtered.filter(product => selectedProducts.has(product.id));
+    }
+
     return filtered;
-  }, [allProducts, searchTerm, categoryFilter, visibilityFilter]);
+  }, [allProducts, searchTerm, categoryFilter, visibilityFilter, showSelectedOnly, selectedProducts]);
 
   // Get unique categories for filter dropdown
   const uniqueCategories = useMemo(() => {
@@ -169,6 +185,11 @@ const BulkEditModal: React.FC<BulkEditModalProps> = ({
     setSearchTerm('');
     setCategoryFilter('all');
     setVisibilityFilter('all');
+    setShowSelectedOnly(false);
+  };
+
+  const clearSelection = () => {
+    setSelectedProducts(new Set());
   };
 
   const handleFieldToggle = (field: keyof BulkUpdateData, enabled: boolean) => {
@@ -322,16 +343,31 @@ const BulkEditModal: React.FC<BulkEditModalProps> = ({
               </SelectContent>
             </Select>
 
-            {(searchTerm || categoryFilter !== 'all' || visibilityFilter !== 'all') && (
+            <div className="flex gap-2">
               <Button
-                variant="outline"
+                variant={showSelectedOnly ? "default" : "outline"}
                 size="sm"
-                onClick={clearFilters}
-                className="border-earthy-beige hover:border-earthy-brown"
+                onClick={() => setShowSelectedOnly(!showSelectedOnly)}
+                className={showSelectedOnly 
+                  ? "bg-earthy-brown hover:bg-earthy-brown/90 text-white" 
+                  : "border-earthy-beige hover:border-earthy-brown"
+                }
+                disabled={selectedCount === 0}
               >
-                Clear
+                {showSelectedOnly ? 'Show All' : `Selected (${selectedCount})`}
               </Button>
-            )}
+
+              {(searchTerm || categoryFilter !== 'all' || visibilityFilter !== 'all' || showSelectedOnly) && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={clearFilters}
+                  className="border-earthy-beige hover:border-earthy-brown"
+                >
+                  Clear Filters
+                </Button>
+              )}
+            </div>
           </div>
 
           {/* Main Content - Two Column Layout */}
@@ -340,18 +376,43 @@ const BulkEditModal: React.FC<BulkEditModalProps> = ({
             <div className="lg:col-span-2 space-y-3">
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-3">
-                  <Checkbox
-                    id="select-all-visible"
-                    checked={selectedFromFiltered === filteredCount && filteredCount > 0}
-                    onCheckedChange={handleSelectAllVisible}
-                  />
-                  <Label htmlFor="select-all-visible" className="text-sm font-medium">
-                    Select All Visible ({filteredCount})
-                  </Label>
+                  {!showSelectedOnly ? (
+                    <>
+                      <Checkbox
+                        id="select-all-visible"
+                        checked={selectedFromFiltered === filteredCount && filteredCount > 0}
+                        onCheckedChange={handleSelectAllVisible}
+                      />
+                      <Label htmlFor="select-all-visible" className="text-sm font-medium">
+                        Select All Visible ({filteredCount})
+                      </Label>
+                    </>
+                  ) : (
+                    <div className="flex items-center gap-2">
+                      <h4 className="text-sm font-medium text-earthy-brown">Selected Products</h4>
+                      <Badge variant="secondary" className="bg-earthy-beige/30">
+                        {selectedCount} items
+                      </Badge>
+                    </div>
+                  )}
                 </div>
-                <Badge variant="secondary" className="bg-earthy-beige/30">
-                  {selectedCount} selected
-                </Badge>
+                <div className="flex items-center gap-2">
+                  {showSelectedOnly && selectedCount > 0 && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={clearSelection}
+                      className="border-red-200 hover:border-red-300 text-red-600 hover:text-red-700"
+                    >
+                      Clear All
+                    </Button>
+                  )}
+                  {!showSelectedOnly && (
+                    <Badge variant="secondary" className="bg-earthy-beige/30">
+                      {selectedCount} selected
+                    </Badge>
+                  )}
+                </div>
               </div>
 
               {loadingProducts ? (
@@ -367,13 +428,26 @@ const BulkEditModal: React.FC<BulkEditModalProps> = ({
                     {filteredProducts.length === 0 ? (
                       <div className="text-center py-12 text-muted-foreground">
                         <Package className="h-12 w-12 mx-auto mb-3 opacity-30" />
-                        <p className="text-lg font-medium mb-1">No products found</p>
-                        <p className="text-sm">Try adjusting your search or filters</p>
+                        {showSelectedOnly ? (
+                          <>
+                            <p className="text-lg font-medium mb-1">No products selected</p>
+                            <p className="text-sm">Select products from the "Show All" view to see them here</p>
+                          </>
+                        ) : (
+                          <>
+                            <p className="text-lg font-medium mb-1">No products found</p>
+                            <p className="text-sm">Try adjusting your search or filters</p>
+                          </>
+                        )}
                       </div>
                     ) : (
                       <div className="space-y-1">
                         {filteredProducts.map((product) => (
-                          <div key={product.id} className="flex items-center space-x-3 p-3 rounded-lg hover:bg-earthy-beige/10 transition-colors">
+                          <div key={product.id} className={`flex items-center space-x-3 p-3 rounded-lg transition-colors ${
+                            selectedProducts.has(product.id) 
+                              ? 'bg-earthy-beige/20 border border-earthy-beige/50' 
+                              : 'hover:bg-earthy-beige/10'
+                          }`}>
                             <Checkbox
                               id={`product-${product.id}`}
                               checked={selectedProducts.has(product.id)}
