@@ -35,9 +35,9 @@ const ProductEditModal: React.FC<ProductEditModalProps> = ({
   const [pendingSave, setPendingSave] = useState(false);
   const { toast } = useToast();
 
-  // Reset form data when product changes
+  // Reset form data when modal opens or product changes
   useEffect(() => {
-    if (product) {
+    if (isOpen && product) {
       setFormData({
         ...product,
         tags: product.tags || [],
@@ -45,8 +45,12 @@ const ProductEditModal: React.FC<ProductEditModalProps> = ({
         related_gods: product.related_gods || [],
         occasions: product.occasions || []
       });
+      // Also reset temporary input states
+      setNewTag('');
+      setNewImageUrl('');
+      setPendingSave(false);
     }
-  }, [product]);
+  }, [isOpen, product]);
 
   if (!product) return null;
 
